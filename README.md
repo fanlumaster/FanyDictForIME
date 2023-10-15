@@ -10,7 +10,7 @@
 - SingleChars.txt 来自[这里](https://github.com/iDvel/rime-ice)。
 - FanyExtDict.txt 我自己根据上面的基础添加的一些不与上面的词库重复的一些条目的词库。
 
-以下是 1 个中文词库。
+以下是 1 个英文词库。
 
 - BaseDictIceEn.txt 词库来自[这里](https://github.com/iDvel/rime-ice)
 
@@ -21,5 +21,12 @@
 对于从别的仓库搜集来的词库，我不会在其中添加新的条目，但是，如果发现有错误的地方，会作相应的修改。
 
 我自己添加的条目会放到 FanyExtDict.txt 中。
+
+---
+
+感谢：
+
+- <https://github.com/iDvel/rime-ice>
+- <https://github.com/wuhgit/CustomPinyinDictionary>
 
 
