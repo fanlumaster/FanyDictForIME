@@ -20,7 +20,7 @@ db_path = os.path.join(os.path.dirname(__file__), "./out/flyciku.db")
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 insert_data_sql = """
-insert into fullpinyinsimple (
+insert into xiaoheulpbtbl (
     key,
     value,
     weight

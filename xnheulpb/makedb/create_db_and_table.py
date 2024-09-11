@@ -18,14 +18,14 @@ conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 delete_table_sql = """
-drop table if exists 'fullpinyinsimple';
+drop table if exists 'xiaoheulpbtbl';
 """
 
 cursor.execute(delete_table_sql)
 
 # sql statement to create a table
 create_table_sql = '''
-create table if not exists fullpinyinsimple (
+create table if not exists xiaoheulpbtbl (
    "key" text, -- 双拼拼音
    "value" text, -- 对应的汉字或者词组
    "weight" integer default 0 -- 权重
