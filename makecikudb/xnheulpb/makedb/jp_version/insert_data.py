@@ -28,35 +28,24 @@ insert into xiaoheulpbtbl (
 ) values (?, ?, ?, ?);
 """
 
-count = 0
-with open(single_char_path, "rb") as file:
-    all_lines = file.readlines()
-    for line in all_lines:
-        cur_line_list = line.decode().strip().split("\t")
-        cur_line_tuple = tuple([cur_line_list[1], cur_line_list[1][::2], cur_line_list[0], cur_line_list[2]])
-        count += 1
-        cursor.execute(insert_data_sql, cur_line_tuple)
-print(count)
+def insert_lines_from_file_to_db_tbl(file_path: str):
+    count = 0
+    with open(file_path, "rb") as file:
+        all_lines = file.readlines()
+        for line in all_lines:
+            cur_line = line.decode()
+            if (cur_line.startswith("#")): # 跳过注释
+                continue
+            cur_line_list = cur_line.strip().split("\t")
+            cur_line_tuple = tuple([cur_line_list[1], cur_line_list[1][::2], cur_line_list[0], cur_line_list[2]])
+            count += 1
+            cursor.execute(insert_data_sql, cur_line_tuple)
+    print(count)
 
-count = 0
-with open(basedict_part1_path, "rb") as file:
-    all_lines = file.readlines()
-    for line in all_lines:
-        cur_line_list = line.decode().strip().split("\t")
-        cur_line_tuple = tuple([cur_line_list[1], cur_line_list[1][::2], cur_line_list[0], cur_line_list[2]])
-        count += 1
-        cursor.execute(insert_data_sql, cur_line_tuple)
-print(count)
-
-count = 0
-with open(basedict_part2_path, "rb") as file:
-    all_lines = file.readlines()
-    for line in all_lines:
-        cur_line_list = line.decode().strip().split("\t")
-        cur_line_tuple = tuple([cur_line_list[1], cur_line_list[1][::2], cur_line_list[0], cur_line_list[2]])
-        count += 1
-        cursor.execute(insert_data_sql, cur_line_tuple)
-print(count)
+# 插入单个汉字
+insert_lines_from_file_to_db_tbl(single_char_path)
+insert_lines_from_file_to_db_tbl(basedict_part1_path)
+insert_lines_from_file_to_db_tbl(basedict_part2_path)
 
 conn.commit()
 conn.close()
