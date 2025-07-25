@@ -1,0 +1,3 @@
+[submodule "MyCustomDictForIme"]
+	path = MyCustomDictForIme
+	url = https://github.com/fanlumaster/MyCustomDictForIme.git
