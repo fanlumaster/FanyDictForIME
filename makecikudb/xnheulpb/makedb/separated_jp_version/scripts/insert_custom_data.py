@@ -56,7 +56,6 @@ def insert_lines_from_file_to_db_tbl(file_path: str):
                     cur_line_list[2],
                 ]
             )
-            print(cur_line_tuple)
             if record_exists(
                 choose_tbl(cur_line_list[1]), cur_line_list[1], cur_line_list[0]
             ):
@@ -65,6 +64,7 @@ def insert_lines_from_file_to_db_tbl(file_path: str):
             cursor.execute(
                 insert_data_sql.format(choose_tbl(cur_line_list[1])), cur_line_tuple
             )
+            print(cur_line_tuple)
     print(count)
 
 
@@ -72,3 +72,14 @@ insert_lines_from_file_to_db_tbl(custom_words_path)
 
 conn.commit()
 conn.close()
+
+
+import win32gui
+import win32con
+
+# Send message to MetasequoiaIme Server end to refresh cache
+hwnd = win32gui.FindWindow("metasequoiaime_candidate_window", None)
+if hwnd:
+    win32gui.SendMessage(hwnd, win32con.WM_USER + 100, 1, 2)
+else:
+    print("Cannot find MetasequoiaIme window.")
