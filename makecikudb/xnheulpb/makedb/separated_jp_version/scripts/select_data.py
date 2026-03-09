@@ -49,4 +49,5 @@ def query_by_key(key: str):
 
 if __name__ == "__main__":
     query_key = "dyys"
+    query_key = "yc"
     query_by_key(query_key)

@@ -49,6 +49,6 @@ def update_weight(key: str, value: str, new_key: str, new_value: str, new_weight
 
 
 if __name__ == "__main__":
-    key, value = "ni", "你"
-    new_key, new_value, new_weight = key, value, 12
+    key, value = "yc", "繇"
+    new_key, new_value, new_weight = key, value, 1
     update_weight(key, value, new_key, new_value, new_weight)
