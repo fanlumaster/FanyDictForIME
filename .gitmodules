@@ -1,0 +1,3 @@
+[submodule "MetasequoiaImeCustomDict"]
+	path = MetasequoiaImeCustomDict
+	url = https://github.com/metasequoiaime/MetasequoiaImeCustomDict.git
