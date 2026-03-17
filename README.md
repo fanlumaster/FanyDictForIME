@@ -41,7 +41,7 @@
 
 然后，逐个解释每个词库的来源/里面到底装的是什么东西，
 
-- 53013_single.txt: 汉字的单字，来自 unicode 的文档       
+- 53013_single.txt: 汉字的单字，来自 unicode 的文档
 - BaseDictAllV1Part1.txt: 把上面所说的百万词库和雾凇的短语词库结合在一起，然后去重，拆分出来的 part1
 - BaseDictAllV1Part2.txt: 把上面所说的百万词库和雾凇的短语词库结合在一起，然后去重，拆分出来的 part2
 - BaseDictIceV1.txt: 雾凇词库
@@ -56,5 +56,3 @@
 
 - <https://github.com/iDvel/rime-ice>
 - <https://github.com/wuhgit/CustomPinyinDictionary>
-
-
