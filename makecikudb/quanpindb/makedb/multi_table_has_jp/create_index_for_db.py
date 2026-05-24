@@ -3,12 +3,11 @@
 
 Create index for key and jp.
 
-TODO: 感觉小词库不需要创建索引也可以，好像还能更快一点。
+Each table can hold tens of thousands of rows, indexes are necessary for query performance.
 """
 
 import os.path
 import sqlite3
-import string
 
 db_path = os.path.join(os.path.dirname(__file__), "./out/quanpin_multi_tbl_has_jp.db")
 conn = sqlite3.connect(db_path)
