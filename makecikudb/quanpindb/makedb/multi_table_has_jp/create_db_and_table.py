@@ -3,17 +3,17 @@
 
 创建一个数据库，并且创建多个表格用于存储全拼的词条
 
-数据库输出路径是： ./out/quanpin.db
+数据库输出路径是：仓库根目录/out/msime.db
 """
 
 import sqlite3
-import os.path
+from pathlib import Path
 import string
 
-output_path = os.path.join(os.path.dirname(__file__), "./out")
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
-db_path = os.path.join(output_path, "./quanpin_multi_tbl_has_jp.db")
+repo_root = Path(__file__).resolve().parents[4]
+output_path = repo_root / "out"
+output_path.mkdir(parents=True, exist_ok=True)
+db_path = output_path / "msime.db"
 # if there is no db, then connect will create one automatically
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()

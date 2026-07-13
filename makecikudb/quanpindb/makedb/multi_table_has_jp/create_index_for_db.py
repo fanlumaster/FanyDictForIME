@@ -6,10 +6,11 @@ Create index for key and jp.
 Each table can hold tens of thousands of rows, indexes are necessary for query performance.
 """
 
-import os.path
 import sqlite3
+from pathlib import Path
 
-db_path = os.path.join(os.path.dirname(__file__), "./out/quanpin_multi_tbl_has_jp.db")
+repo_root = Path(__file__).resolve().parents[4]
+db_path = repo_root / "out" / "msime.db"
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 

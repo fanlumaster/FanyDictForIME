@@ -7,6 +7,7 @@
 import os.path
 import sqlite3
 import string
+from pathlib import Path
 
 single_char_path = os.path.join(
     os.path.dirname(__file__), "../../../../cn/SingleCharsAllV1.txt"
@@ -19,7 +20,8 @@ basedict_part2_path = os.path.join(
 )
 
 
-db_path = os.path.join(os.path.dirname(__file__), "./out/quanpin_multi_tbl_has_jp.db")
+repo_root = Path(__file__).resolve().parents[4]
+db_path = repo_root / "out" / "msime.db"
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 insert_data_sql = """
