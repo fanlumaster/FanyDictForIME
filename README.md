@@ -12,6 +12,7 @@
 
 - `SingleChars.txt` 来自[这里](https://github.com/iDvel/rime-ice)。但是，经过了我的处理，把一些原来不对的拼音，比如，绿(lv)给使用这个[仓库](https://github.com/mozillazg/pinyin-data/blob/master/pinyin.txt)中的数据纠正了过来，保留了原有的雾凇的 8105 简体常用字的同时，对新加入的没有权重的字作了去重，去重的逻辑是把在 8105 中存在的条目给去掉。
 - `FanyExtDict.txt` 我自己根据上面的基础添加的一些不与上面的词库重复的一些条目的词库。
+- `Wubi86.txt` 来自这个 Rime 的一个[词库](https://github.com/KyleBing/rime-wubi86-jidian)。
 
 以下是 1 个英文词库。
 
