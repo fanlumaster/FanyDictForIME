@@ -33,6 +33,11 @@
 - BaseDictAllV1Part1.txt 和 BaseDictAllV1Part2 这两个合起来就是我把上面那两个去重的结果
 - 53013_single.txt 这个是我对所有 unicode 现在支持的汉字
 
+### en 目录
+
+- `google_count_1_w.txt`: <https://www.norvig.com/ngrams/count_1w.txt>，谷歌的 1/3 million 词库。
+- `oaldpe_words.txt`: oaldpe.mdx 中提取出来的单词列表。
+
 ## 额外说明
 
 由于 Github 的单个文件的限制，我将 ./cn/BaseDictV1.txt 拆成了两个文件，分别是，
