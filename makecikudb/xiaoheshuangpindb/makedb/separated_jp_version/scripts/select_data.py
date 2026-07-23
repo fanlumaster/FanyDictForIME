@@ -4,7 +4,7 @@ import sys
 
 local_app_data_dir = os.environ.get("LOCALAPPDATA")
 db_path = os.path.join(
-    local_app_data_dir, "MetasequoiaImeTsf", "cutted_flyciku_with_jp.db"
+    local_app_data_dir, "metasequoiaime", "cutted_flyciku_with_jp.db"
 )
 
 
