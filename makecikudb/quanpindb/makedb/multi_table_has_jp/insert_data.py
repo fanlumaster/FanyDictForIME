@@ -12,6 +12,9 @@ from pathlib import Path
 single_char_path = os.path.join(
     os.path.dirname(__file__), "../../../../cn/SingleCharsAllV1.txt"
 )
+single_char_whitelist_path = os.path.join(
+    os.path.dirname(__file__), "../../../../cn/SingleCharWhitelist.txt"
+)
 basedict_part1_path = os.path.join(
     os.path.dirname(__file__), "../../../../cn/BaseDictAllV1Part1.txt"
 )
@@ -43,7 +46,18 @@ def choose_tbl(pinyin_str: str) -> str:
     return base_tbl.format(word_len if word_len < 8 else "others", pinyin_str[0])
 
 
-def insert_lines_from_file_to_db_tbl(file_path: str):
+def load_single_char_whitelist(file_path: str) -> set[str]:
+    with open(file_path, encoding="utf-8") as file:
+        return {
+            line.strip()
+            for line in file
+            if line.strip() and not line.startswith("#")
+        }
+
+
+def insert_lines_from_file_to_db_tbl(
+    file_path: str, accepted_values: set[str] | None = None
+):
     count = 0
     with open(file_path, "rb") as file:
         all_lines = file.readlines()
@@ -52,6 +66,8 @@ def insert_lines_from_file_to_db_tbl(file_path: str):
             if cur_line.startswith("#"):  # 跳过注释
                 continue
             cur_line_list = cur_line.strip().split("\t")
+            if accepted_values is not None and cur_line_list[0] not in accepted_values:
+                continue
             if cur_line_list[1][0] not in string.ascii_lowercase:  # 滤掉一些如 ê 这样的
                 continue
             cur_jp = "".join(pinyin[0] for pinyin in cur_line_list[1].split("'"))
@@ -71,7 +87,8 @@ def insert_lines_from_file_to_db_tbl(file_path: str):
 
 
 # 插入单个汉字
-insert_lines_from_file_to_db_tbl(single_char_path)
+single_char_whitelist = load_single_char_whitelist(single_char_whitelist_path)
+insert_lines_from_file_to_db_tbl(single_char_path, single_char_whitelist)
 # 插入词语
 insert_lines_from_file_to_db_tbl(basedict_part1_path)
 insert_lines_from_file_to_db_tbl(basedict_part2_path)
