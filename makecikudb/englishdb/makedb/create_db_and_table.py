@@ -17,8 +17,10 @@ def main() -> None:
         conn.execute(
             """
             CREATE TABLE english_words (
-                word TEXT PRIMARY KEY COLLATE BINARY,
-                display TEXT NOT NULL
+                word TEXT COLLATE BINARY NOT NULL,
+                display TEXT NOT NULL,
+                weight INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (word, display)
             ) WITHOUT ROWID
             """
         )
