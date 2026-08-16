@@ -62,3 +62,4 @@
 
 - <https://github.com/iDvel/rime-ice>
 - <https://github.com/wuhgit/CustomPinyinDictionary>
+- <https://github.com/aoguai/rime_kaomoji_dict>
