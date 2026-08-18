@@ -99,6 +99,16 @@ def load_keyword_map(path: Path) -> dict[str, list[str]]:
     return mapping
 
 
+def build_catalog_rows(mapping: dict[str, list[str]]) -> list[tuple[str, int, str]]:
+    """One row per unique kaomoji for the emoji-panel catalog (browse + keyword search)."""
+    rows: list[tuple[str, int, str]] = []
+    order = 0
+    for kaomoji, keywords in mapping.items():
+        rows.append((kaomoji, order, " ".join(keywords)))
+        order += 1
+    return rows
+
+
 def build_rows(mapping: dict[str, list[str]]) -> list[tuple[str, str, str, int]]:
     rows: list[tuple[str, str, str, int]] = []
     seen: set[tuple[str, str, str]] = set()
@@ -117,12 +127,14 @@ def build_rows(mapping: dict[str, list[str]]) -> list[tuple[str, str, str, int]]
     return rows
 
 
-def create_and_insert(rows: list[tuple[str, str, str, int]]) -> None:
+def create_and_insert(rows: list[tuple[str, str, str, int]],
+                      catalog_rows: list[tuple[str, int, str]]) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("DROP TABLE IF EXISTS kaomoji")
         conn.execute("DROP TABLE IF EXISTS kaomoji_pinyin")
         conn.execute("DROP INDEX IF EXISTS idx_kaomoji_jianpin")
+        conn.execute("DROP TABLE IF EXISTS kaomoji_catalog")
         conn.execute(
             """
             CREATE TABLE kaomoji (
@@ -138,6 +150,21 @@ def create_and_insert(rows: list[tuple[str, str, str, int]]) -> None:
         conn.executemany(
             "INSERT INTO kaomoji (pinyin, jianpin, kaomoji, sort_order) VALUES (?, ?, ?, ?)",
             rows,
+        )
+
+        conn.execute(
+            """
+            CREATE TABLE kaomoji_catalog (
+                kaomoji TEXT NOT NULL,
+                sort_order INTEGER NOT NULL,
+                keywords TEXT NOT NULL,
+                PRIMARY KEY (kaomoji)
+            ) WITHOUT ROWID
+            """
+        )
+        conn.executemany(
+            "INSERT INTO kaomoji_catalog (kaomoji, sort_order, keywords) VALUES (?, ?, ?)",
+            catalog_rows,
         )
         conn.execute("ANALYZE")
         conn.commit()
@@ -158,11 +185,13 @@ def copy_to_appdata() -> None:
 def main() -> None:
     mapping = load_keyword_map(KAOMOJI_DIR / "kaomoji.txt")
     rows = build_rows(mapping)
-    create_and_insert(rows)
+    catalog_rows = build_catalog_rows(mapping)
+    create_and_insert(rows, catalog_rows)
     copy_to_appdata()
     print(f"Created: {DB_PATH}")
     print(f"kaomoji rows (per keyword): {len(rows)}")
     print(f"kaomoji entries: {len(mapping)}")
+    print(f"kaomoji_catalog entries: {len(catalog_rows)}")
 
 
 if __name__ == "__main__":
