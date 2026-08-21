@@ -1,3 +1,4 @@
 **/out
+source/mozc_dictionary_oss/
 **/__pycache__/
 *.pyc
