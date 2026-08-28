@@ -18,6 +18,16 @@ def main() -> None:
         if integrity != "ok":
             raise RuntimeError(f"SQLite integrity check failed: {integrity}")
 
+        columns = {row[1]: row for row in conn.execute("PRAGMA table_info(english_words)")}
+        if "weight" not in columns:
+            raise RuntimeError("english_words is missing the weight column required by installer replay")
+        primary_key_columns = [name for name, row in columns.items() if row[5] > 0]
+        if primary_key_columns != ["word", "display"]:
+            raise RuntimeError(
+                "english_words must use PRIMARY KEY(word, display); "
+                f"got {primary_key_columns}"
+            )
+
         count, distinct_words = conn.execute(
             """
             SELECT COUNT(*), COUNT(DISTINCT word)
