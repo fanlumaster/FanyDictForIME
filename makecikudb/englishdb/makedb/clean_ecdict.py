@@ -23,6 +23,9 @@ import re
 import sqlite3
 from typing import Iterable
 
+from apply_custom_translations import DEFAULT_SOURCE as DEFAULT_CUSTOM_TRANSLATIONS
+from apply_custom_translations import apply_to_database, load_entries
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPOSITORY_ROOT = SCRIPT_DIR.parents[2]
@@ -456,6 +459,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Do not restrict reverse glosses to words present in msime.db.",
     )
+    parser.add_argument(
+        "--custom-translations",
+        type=Path,
+        default=DEFAULT_CUSTOM_TRANSLATIONS,
+        help="Small override list applied after the ECDICT tables are rebuilt.",
+    )
     return parser.parse_args()
 
 
@@ -479,6 +488,12 @@ def main() -> None:
             allowed_terms = set(chinese_term_weights)
         reverse_glosses = finalize_reverse_glosses(reverse_candidates, allowed_terms)
         replace_gloss_tables(english_database, english_entries, reverse_glosses)
+        custom_applied = 0
+        if args.custom_translations.exists():
+            custom_applied = apply_to_database(
+                english_database, load_entries(args.custom_translations)
+            )["total"]
+            english_database.commit()
         integrity = english_database.execute("PRAGMA integrity_check").fetchone()[0]
 
     report: dict[str, object] = {
@@ -495,6 +510,7 @@ def main() -> None:
         if allowed_terms is not None
         else None,
         "zh_en_glosses": len(reverse_glosses),
+        "custom_translations": custom_applied,
         "integrity_check": integrity,
         "review_english": {
             word: english_entries[word].chinese_gloss

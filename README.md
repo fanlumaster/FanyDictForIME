@@ -26,6 +26,8 @@
 
 我自己添加的条目会放到 FanyExtDict.txt 中。
 
+候选窗中英翻译的补丁不要改 ECDICT 大词库，写到 `MetasequoiaImeCustomDict/translations.txt`。
+
 ### cn 目录
 
 - BaseDictIceV1.txt 经过我处理的 BaseDictIce.txt 的修改版。
