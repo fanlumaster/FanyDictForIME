@@ -43,7 +43,7 @@
 | --- | --- | --- |
 | [MSIME-Linux](https://github.com/metasequoiaime/MSIME-Linux) | DEB／RPM 包内的 `msime.db`、`others.db`、`english.db` 与辅助码 | `THIRD_PARTY_NOTICES.txt`，已覆盖词库 |
 | [MSIME-Apple](https://github.com/metasequoiaime/MSIME-Apple) | app bundle 内的 `msime.db` 与辅助码 | `THIRD_PARTY_NOTICES.txt`，已覆盖词库 |
-| [MSIME-Windows](https://github.com/metasequoiaime/MSIME-Windows) | 安装包内的 `msime.db`、`others.db`、`english.db`、`dict_japanese.dat` 与辅助码 | **没有第三方声明文件**，见下方「待解决」 |
+| [MSIME-Windows](https://github.com/metasequoiaime/MSIME-Windows) | 安装包内的 `msime.db`、`others.db`、`english.db`、`dict_japanese.dat` 与辅助码 | `THIRD_PARTY_NOTICES.txt`，已覆盖词库，由安装包装到程序目录 |
 
 改动本文件的来源表时，这几份文件要一起改；它们才是随产物送到用户手上的那一份。
 
@@ -56,7 +56,6 @@
 - `cn/SingleCharWhitelist.txt` 的来源没有记录。它参与 `msime.db` 的构建（`makecikudb/quanpindb/makedb/multi_table_has_jp/insert_data.py` 用它过滤单字条目），所以需要补上来源；在补上之前不要假定它可以再分发。
 - `en/oaldpe_words.txt` 提取自商业词典。词典本体 `en/oaldpe.mdx` 曾经也在本仓中，现已移除——构建只需要提取好的词形列表，不需要词典本体。需要重新生成词表时，自备 `.mdx` 并作为参数传给 `makecikudb/englishdb/extract_oaldpe_headwords.py`。**注意移除只影响当前版本，该文件仍留在 git 历史中。**改写历史会让所有 fork、clone 以及下游 `product-lock.json` 里锁定的 commit 全部失效，因此暂不改写；是否改写单独决策。
 - 辅助码规则参考自小鹤形码，权利归方案作者。
-- [MSIME-Windows](https://github.com/metasequoiaime/MSIME-Windows) 的安装包分发本仓库的全部四个产物，但仓内没有任何第三方声明文件，rime-ice 要求的署名因此没有随产物送达。
 
 需要说明的是，本节列出的未决条目并不妨碍产品当前正在分发这些数据。上面三个前端每次发版都会打包 `msime.db`。这是已知的状态，不是疏忽：在条目澄清前，请不要假定本仓库的数据可以自由再分发，也不要把现有的分发行为当作已获授权的证据。
 
