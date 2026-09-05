@@ -54,7 +54,19 @@ REFERENCES = {
 # pinning it here keeps dict_japanese.dat reproducible.
 MOZC_REVISION = "master"
 
-SHIPPING_ARTIFACTS = ("msime.db", "english.db", "others.db", "dict_japanese.dat")
+# Mozc's README carries the IPAdic / ICOT / Okinawa notices that dict_japanese.dat is derived
+# from, so it has to travel with the model. build_sentence_model.py downloads it next to the raw
+# data; the japanese-model stage copies it into out/ under a name that says where it came from.
+MOZC_NOTICE_SOURCE = REPO_ROOT / "source" / "mozc_dictionary_oss" / "README.txt"
+MOZC_NOTICE_NAME = "mozc_dictionary_oss_README.txt"
+
+SHIPPING_ARTIFACTS = (
+    "msime.db",
+    "english.db",
+    "others.db",
+    "dict_japanese.dat",
+    MOZC_NOTICE_NAME,
+)
 
 
 @dataclass(frozen=True)
@@ -71,6 +83,8 @@ class Stage:
     needs_reference: str | None = None
     # Files that must exist before the stage runs, relative to the repository root.
     needs_paths: tuple[str, ...] = field(default=())
+    # Copy the Mozc licence notice into out/ once the stage has produced the model.
+    copies_mozc_notice: bool = False
 
 
 # Order matters. quanpin runs first because create_db_and_table.py creates msime.db itself;
@@ -199,7 +213,8 @@ STAGES: tuple[Stage, ...] = (
                 MOZC_REVISION,
             ),
         ),
-        produces=("dict_japanese.dat",),
+        produces=("dict_japanese.dat", MOZC_NOTICE_NAME),
+        copies_mozc_notice=True,
     ),
 )
 
@@ -244,6 +259,12 @@ def run_stage(stage: Stage, reference_root: Path) -> None:
         arguments = [argument.format(reference=reference_root) for argument in step[1:]]
         print(f"  -> {script.relative_to(REPO_ROOT)} {' '.join(arguments)}".rstrip())
         run([sys.executable, str(script), *arguments], cwd=REPO_ROOT)
+
+    if stage.copies_mozc_notice:
+        if not MOZC_NOTICE_SOURCE.is_file():
+            raise BuildError(f"stage {stage.name}: {MOZC_NOTICE_SOURCE} was not downloaded")
+        shutil.copyfile(MOZC_NOTICE_SOURCE, OUT_DIR / MOZC_NOTICE_NAME)
+        print(f"  -> copied {MOZC_NOTICE_SOURCE.name} to out/{MOZC_NOTICE_NAME}")
 
 
 def write_checksums(out_dir: Path) -> Path | None:

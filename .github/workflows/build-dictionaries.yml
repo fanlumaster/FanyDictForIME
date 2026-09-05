@@ -60,7 +60,7 @@ jobs:
             echo
             echo '| File | Size |'
             echo '| --- | --- |'
-            for artifact in msime.db english.db others.db dict_japanese.dat; do
+            for artifact in msime.db english.db others.db dict_japanese.dat mozc_dictionary_oss_README.txt; do
               printf '| %s | %s |\n' "$artifact" "$(du -h "out/$artifact" | cut -f1)"
             done
             echo
@@ -78,6 +78,7 @@ jobs:
             out/english.db
             out/others.db
             out/dict_japanese.dat
+            out/mozc_dictionary_oss_README.txt
             out/SHA256SUMS.txt
           retention-days: 7
           compression-level: 9
@@ -130,4 +131,5 @@ jobs:
             --target "$SOURCE_SHA" \
             --title "Dictionaries $TAG_NAME" \
             --notes "$notes" \
-            out/msime.db out/english.db out/others.db out/dict_japanese.dat out/SHA256SUMS.txt
+            out/msime.db out/english.db out/others.db out/dict_japanese.dat \
+            out/mozc_dictionary_oss_README.txt out/SHA256SUMS.txt
