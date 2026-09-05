@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import shutil
 import subprocess
 import sys
@@ -39,20 +40,9 @@ OUT_DIR = REPO_ROOT / "out"
 REFERENCE_ROOT = REPO_ROOT.parent / "ReferenceProjects"
 
 # Pinned so a rebuild of the same commit produces the same dictionaries. Bump deliberately.
-REFERENCES = {
-    "ECDICT": (
-        "https://github.com/skywind3000/ECDICT.git",
-        "bc015ed2e24a7abef49fc6dbbb7fe32c1dadaf8b",
-    ),
-    "rime-jp_sela": (
-        "https://github.com/Selaube/rime-jp_sela.git",
-        "898e09cb5e0bd3e02216165e52fef67f5a597590",
-    ),
-}
-
-# Mozc revision for the Japanese sentence model. build_sentence_model.py defaults to master;
-# pinning it here keeps dict_japanese.dat reproducible.
-MOZC_REVISION = "master"
+SOURCES = json.loads((REPO_ROOT / "sources-lock.json").read_text())
+REFERENCES = {name: (entry["repository"], entry["commit"]) for name, entry in SOURCES["references"].items()}
+MOZC_REVISION = SOURCES["mozc"]["commit"]
 
 # Mozc's README carries the IPAdic / ICOT / Okinawa notices that dict_japanese.dat is derived
 # from, so it has to travel with the model. build_sentence_model.py downloads it next to the raw

@@ -1,0 +1,33 @@
+# Dictionary product API
+
+Consumers call `build_profile.py`; paths below `makecikudb/` are implementation
+details of the public build. Those stage scripts remain the authoritative builders.
+
+```sh
+python -m pip install -r requirements.txt
+python build_profile.py --profile desktop --fetch-references
+python build_profile.py --profile mobile --source out/desktop/msime.db
+python build_profile.py --profile desktop --verify
+python build_profile.py --profile mobile --verify
+```
+
+`desktop` includes all shipping databases, the Japanese model and its notice.
+`mobile` retains every single-character pinyin candidate and phrase entries whose
+weight is at least 2000, preserves their indexes and long-phrase tables, and omits
+other input modes. `--minimum-weight` deliberately changes the compact product.
+`--output` selects a destination; mobile defaults to `out/mobile`, desktop to
+`out/desktop`. Without `--source`, the build regenerates the shared `out/` staging
+area; run builds sequentially within a checkout.
+
+Each product has `dictionary-manifest.json`: manifest and dictionary format versions,
+profile/features, source commit and dirty state, fixed external revisions, and the
+size/SHA256 of every artifact. A mobile product also records the full source database
+digest. `SHA256SUMS.txt` covers the manifest as well. Release consumers must pin these
+digests outside the downloaded files, as in the Windows product lock.
+
+Dictionary format 1 uses `tbl_{1..7}_{letter}` and `tbl_others_{letter}` for pinyin,
+the existing `key/jp/value/weight` columns, and the `MSJPDT1` Japanese model. Format
+changes require Engine query/write/replay compatibility changes in the same product
+combination. Adding fields to this manifest does not change the database format.
+Existing releases without a manifest remain usable only through an explicitly
+locked legacy input; new releases are built and verified through this API.

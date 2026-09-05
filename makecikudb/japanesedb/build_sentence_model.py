@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import argparse
 import math
+import json
+import hashlib
+import tempfile
+import shutil
 import struct
 import urllib.request
 from pathlib import Path
@@ -21,12 +25,27 @@ TOKEN = struct.Struct("<IHIHHHi")
 
 def download_sources(directory: Path, revision: str) -> None:
     directory.mkdir(parents=True, exist_ok=True)
-    for name in DICTIONARY_FILES + SUPPORT_FILES:
-        destination = directory / name
-        if destination.is_file() and destination.stat().st_size > 0:
-            continue
-        print(f"Downloading {name}...")
-        urllib.request.urlretrieve(MOZC_RAW.format(revision=revision, name=name), destination)
+    marker = directory / "source-manifest.json"
+    names = DICTIONARY_FILES + SUPPORT_FILES
+    if marker.is_file():
+        cached = json.loads(marker.read_text())
+        if cached.get("revision") == revision and all(
+            (directory / name).is_file() and
+            hashlib.sha256((directory / name).read_bytes()).hexdigest() == cached.get("files", {}).get(name)
+            for name in names
+        ):
+            return
+    # An interrupted or changed revision cannot reuse a mixture of cached sources.
+    with tempfile.TemporaryDirectory(dir=directory.parent) as temporary:
+        incoming = Path(temporary)
+        digests = {}
+        for name in names:
+            print(f"Downloading {name} at {revision}...")
+            urllib.request.urlretrieve(MOZC_RAW.format(revision=revision, name=name), incoming / name)
+            digests[name] = hashlib.sha256((incoming / name).read_bytes()).hexdigest()
+        for name in names:
+            shutil.copyfile(incoming / name, directory / name)
+        marker.write_text(json.dumps({"revision": revision, "files": digests}, indent=2) + "\n")
 
 
 def read_dictionary(directory: Path) -> list[tuple[str, int, int, int, str]]:
@@ -129,7 +148,7 @@ def main() -> None:
     parser.add_argument("--source-dir", type=Path, default=DEFAULT_SOURCE_DIR)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--download", action="store_true")
-    parser.add_argument("--revision", default="master")
+    parser.add_argument("--revision", default=json.loads((REPO_ROOT / "sources-lock.json").read_text())["mozc"]["commit"])
     args = parser.parse_args()
     source_dir = args.source_dir.resolve()
     if args.download:
