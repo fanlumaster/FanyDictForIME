@@ -17,6 +17,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = REPO_ROOT / "out"
+sys.path.insert(0, str(REPO_ROOT))
+from dictionary_format import quanpin_tables
 
 # (table, minimum rows) per database.
 EXPECTED_TABLES = {
@@ -40,7 +42,7 @@ EXPECTED_TABLES = {
 }
 
 # The quanpin entries are spread over tbl_{1..7,others}_{letter}; check the total instead.
-QUANPIN_TABLE_COUNT = 8 * 23
+QUANPIN_TABLE_COUNT = len(quanpin_tables())
 QUANPIN_MINIMUM_ROWS = 1_000_000
 
 # dict_japanese.dat has no schema to inspect, so check the magic header and a floor size.

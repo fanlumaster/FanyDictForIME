@@ -1,6 +1,6 @@
 # AGENTS.md — MSIME-Dict
 
-产品级约定与跨仓契约以 [MSIME-Windows 的 AGENTS.md](https://github.com/metasequoiaime/MSIME-Windows/blob/main/AGENTS.md) 为准，那一份统领整个水杉输入法项目。本文件只记录本仓自己的规则。
+组织级约定和跨仓边界以 [组织 AGENTS.md](https://github.com/metasequoiaime/.github/blob/main/AGENTS.md) 为准。本文件补充本仓的实现、数据和验证规则。
 
 本仓是词库数据与构建脚本：源数据是 `cn/`、`en/`、`emoji/`、`kaomoji/`、`symbols/`、`mix/` 下的文本，产物是四个二进制数据文件。引擎只读取产物，不解析这里的源数据。
 
@@ -8,8 +8,9 @@
 
 ```bash
 python -m pip install -r requirements.txt
-python build_all.py --clean --fetch-references
-python tools/verify_dictionaries.py
+git submodule update --init
+python build_profile.py --profile desktop --fetch-references
+python build_profile.py --profile desktop --verify
 ```
 
 `build_all.py` 把 `makecikudb/` 下各目录的分步脚本按正确顺序串成 11 个 stage，全量 clean build 大约 20 秒。**各分步脚本仍是权威**，编排器只是按顺序调用它们，单独执行的用法不变。
@@ -34,7 +35,7 @@ python tools/verify_dictionaries.py
 
 `msime.db` 按音节数加首音节首字母分表，1–7 音节是 `tbl_{N}_{首字母}`，≥8 音节是 `tbl_others_{首字母}`。
 
-**权威实现在 MSIME-Engine 的 `quanpin/quanpin_query.cpp::build_table_name`**，本仓的建库脚本必须与它一致，另外两处一致方是设置页加词和 `user_dictionary_journal.cpp` 的用户词库回放。四处不一致时，安装升级的词库回放会整批回滚并中止安装。
+**权威定义在固定 Engine 子模块的 `contracts/dictionary/format.json`**。本仓通过 `dictionary_format.py` 加载其 Python API，建表、插入、索引共用该 API；查询、设置页写入与用户词库回放使用同源 C++ 定义。禁止在建库脚本复制命名规则。
 
 **禁止对 ≥8 音节拼出 `tbl_8_*`**，建库脚本不会创建这些表。
 
@@ -45,7 +46,7 @@ python tools/verify_dictionaries.py
 - `skywind3000/ECDICT` — 候选窗中英释义的来源
 - `Selaube/rime-jp_sela` — 日语词表
 
-**revision 是刻意固定的**，为的是同一个 commit 重建能得到相同的词库。升级时连同 `build_all.py` 里的 `MOZC_REVISION` 一起当作有意的数据变更来评审，不要顺手跟到最新。
+**revision 是刻意固定的**，为的是同一个 commit 重建能得到相同的词库。升级时通过 `sources-lock.json` 连同 Mozc revision 一起当作有意的数据变更来评审，不要顺手跟到最新。
 
 不加 `--fetch-references` 时依赖它们的 stage 会被跳过而不是报错，方便本地做部分构建；发布构建用 `--require-all` 让缺失直接失败。
 

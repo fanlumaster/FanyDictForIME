@@ -11,6 +11,9 @@ from pathlib import Path
 import string
 
 repo_root = Path(__file__).resolve().parents[4]
+import sys
+sys.path.insert(0, str(repo_root))
+from dictionary_format import pinyin_table, quanpin_tables
 output_path = repo_root / "out"
 output_path.mkdir(parents=True, exist_ok=True)
 db_path = output_path / "msime.db"
@@ -31,14 +34,9 @@ create table if not exists {} (
 );
 """
 
-legal_letters = "abcdefghjklmnopqrstwxyz"
-
-base_tbl = "tbl_{}_{}"  # e.g. tbl_3_a means 三个汉字的词条，并且全拼拼音以 a 开头
-for i in range(8):
-    for c in legal_letters:
-        cur_tbl = base_tbl.format(i + 1 if i < 7 else "others", c)
-        cursor.execute(delete_table_sql.format(cur_tbl))  # 删除表格，如果表格存在的话
-        cursor.execute(create_table_sql.format(cur_tbl))  # 创建表格
+for cur_tbl in quanpin_tables():
+    cursor.execute(delete_table_sql.format(cur_tbl))
+    cursor.execute(create_table_sql.format(cur_tbl))
 
 # commit changes
 conn.commit()
