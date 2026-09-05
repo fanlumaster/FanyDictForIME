@@ -18,6 +18,37 @@
 
 - BaseDictIceEn.txt 词库来自[这里](https://github.com/iDvel/rime-ice)
 
+## 构建词库
+
+`build_all.py` 把 `makecikudb/` 下各目录的分步脚本按正确顺序串起来，一次产出全部四个发布产物。各脚本本身仍是权威，单独执行的用法不变。
+
+```bash
+python -m pip install pypinyin==0.55.0
+python build_all.py --clean --fetch-references
+python tools/verify_dictionaries.py
+```
+
+产物写到 `out/`，同时生成 `out/SHA256SUMS.txt`：
+
+| 产物 | 内容 |
+|---|---|
+| `msime.db` | 全拼分表、86 五笔、快捷短语、日语词表 |
+| `english.db` | 英文候选词表，以及 ECDICT 双向释义表 |
+| `others.db` | emoji、颜文字、符号目录 |
+| `dict_japanese.dat` | 日语整句解码用的只读 Viterbi 模型 |
+
+`--fetch-references` 会把两个外部数据源按固定 revision clone 到仓库同级的 `ReferenceProjects/`：ECDICT 提供候选窗释义，rime-jp_sela 提供日语词表。不加这个参数时，依赖它们的 stage 会被跳过而不是报错；发布构建请配合 `--require-all` 让缺失直接失败。日语整句模型的 Mozc 原始数据由脚本自己下载。
+
+常用参数：
+
+```bash
+python build_all.py --list                    # 列出全部 stage
+python build_all.py --only quanpin wubi       # 只跑指定 stage
+python build_all.py --skip english-glosses    # 跳过指定 stage
+```
+
+`tools/verify_dictionaries.py` 校验每张发布表存在且行数不低于下限，用来拦住「stage 跑成功但表是空的」这种情况。GitHub Actions 的 `Build dictionaries` workflow 每次 push 和 PR 都会跑完整构建加校验；手动触发并勾选 `publish` 时，会把四个产物和校验和发布成一个 `dict-YYYY.MM.DD` 的 release，供 `MSIME-Windows` 的安装包发布流程下载。
+
 ## 说明
 
 词库的 txt 文件打开时最好使用思源系列的字体或者花园明朝应该也可以，因为有些生僻的汉字在 Windows 下的很多字体是不支持的。
