@@ -23,10 +23,12 @@
 `build_all.py` 把 `makecikudb/` 下各目录的分步脚本按正确顺序串起来，一次产出全部四个发布产物。各脚本本身仍是权威，单独执行的用法不变。
 
 ```bash
-python -m pip install pypinyin==0.55.0
+python -m pip install -r requirements.txt
 python build_all.py --clean --fetch-references
 python tools/verify_dictionaries.py
 ```
+
+`requirements.txt` 只装出货构建需要的东西，跨平台可用。`makecikudb/` 下那些一次性辅助脚本另有依赖，在 `requirements-tools.txt` 里（其中 `pywin32` 带平台标记，非 Windows 上会自动跳过）。
 
 产物写到 `out/`，同时生成 `out/SHA256SUMS.txt`：
 
