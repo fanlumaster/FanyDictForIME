@@ -1,4 +1,9 @@
-"""Extract an English-word whitelist from an OALDPE MDict file."""
+"""Extract an English-word whitelist from an OALDPE MDict file.
+
+The .mdx itself is a commercial dictionary and is not distributed with this
+repository; supply your own copy as the command-line argument. The build does
+not need it -- only the already-extracted en/oaldpe_words.txt is consumed.
+"""
 
 from __future__ import annotations
 

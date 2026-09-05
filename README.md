@@ -102,4 +102,6 @@ python build_all.py --skip english-glosses    # 跳过指定 stage
 
 ## 许可
 
-自有的构建脚本和自建词条以 GPL-3.0 发布，详见 [LICENSE](LICENSE)。从其它开源项目收集来的词库各自沿用上游许可，逐条列在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)；其中有两项来源的许可状态需要项目所有者定夺，也记在同一份文件里。
+本仓库**不对外提供统一的开源许可**：其中绝大部分词库并非本项目的作品，给整个仓库挂一份 LICENSE 等于替上游作者重新授权。逐项的来源与上游条款见 [NOTICE.md](NOTICE.md)，使用或再分发前请以对应上游的条款为准。
+
+`makecikudb/` 下由本项目编写的构建脚本以 GPL-3.0 提供，见 [makecikudb/LICENSE](makecikudb/LICENSE)。

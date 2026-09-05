@@ -34,7 +34,7 @@
 以下部分目前没有明确的再分发授权，需要与上游作者确认后才能补上：
 
 - [wuhgit/CustomPinyinDictionary](https://github.com/wuhgit/CustomPinyinDictionary) 未声明任何许可，而它是 `msime.db` 的主体。
-- `en/oaldpe_words.txt` 提取自商业词典。
+- `en/oaldpe_words.txt` 提取自商业词典。词典本体 `en/oaldpe.mdx` 曾经也在本仓中，现已移除——构建只需要提取好的词形列表，不需要词典本体。需要重新生成词表时，自备 `.mdx` 并作为参数传给 `makecikudb/englishdb/extract_oaldpe_headwords.py`。**注意移除只影响当前版本，该文件仍留在 git 历史中。**
 - 辅助码规则参考自小鹤形码，权利归方案作者。
 
 在这些条目澄清之前，请不要假定本仓库的数据可以自由再分发。
