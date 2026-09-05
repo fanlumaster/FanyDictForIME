@@ -65,3 +65,7 @@
 - <https://github.com/iDvel/rime-ice>
 - <https://github.com/wuhgit/CustomPinyinDictionary>
 - <https://github.com/aoguai/rime_kaomoji_dict>
+
+## 许可
+
+自有的构建脚本和自建词条以 GPL-3.0 发布，详见 [LICENSE](LICENSE)。从其它开源项目收集来的词库各自沿用上游许可，逐条列在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)；其中有两项来源的许可状态需要项目所有者定夺，也记在同一份文件里。
