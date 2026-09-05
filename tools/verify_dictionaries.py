@@ -47,6 +47,13 @@ QUANPIN_MINIMUM_ROWS = 1_000_000
 JAPANESE_MODEL_MAGIC = b"MSJPDT1\0"
 JAPANESE_MODEL_MINIMUM_BYTES = 32 * 1024 * 1024
 
+# The model is derived from Mozc's OSS dictionary, so its notice has to ship alongside it.
+# Losing this file would ship the model without its IPAdic / ICOT / Okinawa attribution.
+MOZC_NOTICE_NAME = "mozc_dictionary_oss_README.txt"
+MOZC_NOTICE_REQUIRED_TERMS = ("IPAdic", "ICOT", "Okinawa")
+
+EXPECTED_CHECKSUM_ENTRIES = 5
+
 
 def fail(message: str, failures: list[str]) -> None:
     print(f"FAIL {message}")
@@ -112,14 +119,27 @@ def check_japanese_model(failures: list[str]) -> None:
     print(f"ok   dict_japanese.dat = {size / 1048576:.1f} MB")
 
 
+def check_mozc_notice(failures: list[str]) -> None:
+    path = OUT_DIR / MOZC_NOTICE_NAME
+    if not path.is_file():
+        fail(f"{MOZC_NOTICE_NAME} is missing; dict_japanese.dat must not ship without it", failures)
+        return
+    text = path.read_text(encoding="utf-8", errors="replace")
+    absent = [term for term in MOZC_NOTICE_REQUIRED_TERMS if term.lower() not in text.lower()]
+    if absent:
+        fail(f"{MOZC_NOTICE_NAME} does not mention {', '.join(absent)}", failures)
+        return
+    print(f"ok   {MOZC_NOTICE_NAME} = {path.stat().st_size} bytes")
+
+
 def check_checksums(failures: list[str]) -> None:
     path = OUT_DIR / "SHA256SUMS.txt"
     if not path.is_file():
         fail("SHA256SUMS.txt is missing", failures)
         return
     lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    if len(lines) != 4:
-        fail(f"SHA256SUMS.txt lists {len(lines)} artifacts, expected 4", failures)
+    if len(lines) != EXPECTED_CHECKSUM_ENTRIES:
+        fail(f"SHA256SUMS.txt lists {len(lines)} artifacts, expected {EXPECTED_CHECKSUM_ENTRIES}", failures)
     else:
         print(f"ok   SHA256SUMS.txt lists {len(lines)} artifacts")
 
@@ -129,6 +149,7 @@ def main() -> int:
     check_row_counts(failures)
     check_quanpin(failures)
     check_japanese_model(failures)
+    check_mozc_notice(failures)
     check_checksums(failures)
 
     if failures:
