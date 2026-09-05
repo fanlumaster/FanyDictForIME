@@ -14,9 +14,10 @@ import tempfile
 
 import build_all
 from profiles.compact import compact_dictionary
+from dictionary_format import FORMAT, verify_product
 
 ROOT = Path(__file__).resolve().parent
-FORMAT_VERSION = 1
+FORMAT_VERSION = FORMAT['formatVersion']
 MANIFEST = 'dictionary-manifest.json'
 
 
@@ -37,8 +38,9 @@ def provenance() -> dict:
 def write_manifest(output: Path, profile: str, names: list[str], source_database: str | None = None, minimum_weight: int = 2000) -> dict:
     manifest = {
         'manifest_version': 1, 'profile': profile, 'format_version': FORMAT_VERSION,
-        'engine_compatibility': {'dictionary_format': 1, 'japanese_model_magic': 'MSJPDT1' if profile == 'desktop' else None},
+        'engine_compatibility': {'dictionary_format': FORMAT_VERSION, 'japanese_model_magic': 'MSJPDT1' if profile == 'desktop' else None},
         'source': provenance(),
+        'format_contract_commit': subprocess.check_output(['git', '-C', str(ROOT / 'vendor/MetasequoiaImeEngine'), 'rev-parse', 'HEAD'], text=True).strip(),
         'custom_dictionary_commit': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD:MetasequoiaImeCustomDict'], text=True).strip() if profile == 'desktop' else None,
         'references': {name: {'repository': repo, 'commit': revision}
                        for name, (repo, revision) in build_all.REFERENCES.items()} if profile == 'desktop' else {},
@@ -56,18 +58,9 @@ def write_manifest(output: Path, profile: str, names: list[str], source_database
 
 
 def verify(output: Path, expected_profile: str | None = None) -> dict:
-    manifest = json.loads((output / MANIFEST).read_text())
-    if manifest.get('manifest_version') != 1 or manifest.get('format_version') != FORMAT_VERSION:
-        raise ValueError('Unsupported dictionary product format')
-    profile = manifest.get('profile')
-    if profile not in ('desktop', 'mobile') or (expected_profile and profile != expected_profile):
-        raise ValueError('Dictionary product profile mismatch')
-    required = set(build_all.SHIPPING_ARTIFACTS) if profile == 'desktop' else {'msime.db', 'msime.db.sha256'}
-    if set(manifest['files']) != required:
-        raise ValueError('Dictionary artifact set does not match its profile')
-    for name, entry in manifest['files'].items():
-        if Path(name).name != name or digest(output / name) != entry['sha256']:
-            raise ValueError(f'Dictionary artifact changed: {name}')
+    profile = expected_profile or json.loads((output / MANIFEST).read_text()).get('profile')
+    manifest = verify_product(output, profile)
+    required = manifest['files']
     for name in required:
         if name.endswith('.db'):
             with sqlite3.connect((output / name).resolve().as_uri() + '?mode=ro', uri=True) as database:

@@ -50,7 +50,7 @@ jobs:
       - name: Verify the built artifacts
         run: |
           python build_profile.py --profile desktop --verify
-          python3 -m unittest discover -s tests -p test_profiles.py
+          python3 -m unittest discover -s tests -p 'test_*.py'
           python build_profile.py --profile mobile --source out/desktop/msime.db
           python build_profile.py --profile mobile --verify
 

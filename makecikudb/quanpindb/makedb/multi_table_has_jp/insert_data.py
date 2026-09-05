@@ -24,6 +24,9 @@ basedict_part2_path = os.path.join(
 
 
 repo_root = Path(__file__).resolve().parents[4]
+import sys
+sys.path.insert(0, str(repo_root))
+from dictionary_format import pinyin_table, quanpin_tables
 db_path = repo_root / "out" / "msime.db"
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
@@ -41,9 +44,7 @@ def choose_tbl(pinyin_str: str) -> str:
     """
     pinyin_str: 分好词的全拼字符串，看有几个部分，就知道是几个字的词条了，不能使用汉字个数来划分，因为有些词条中不止包含汉字。
     """
-    word_len = pinyin_str.count("'") + 1
-    base_tbl = "tbl_{}_{}"
-    return base_tbl.format(word_len if word_len < 8 else "others", pinyin_str[0])
+    return pinyin_table(pinyin_str)
 
 
 def load_single_char_whitelist(file_path: str) -> set[str]:
