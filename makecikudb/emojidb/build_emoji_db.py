@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Build the emoji table inside MetasequoiaImeDict/out/others.db."""
 
+import argparse
 from collections import defaultdict, OrderedDict
 from pathlib import Path
 import os
@@ -314,23 +315,31 @@ def copy_to_appdata() -> None:
         print(f"Removed leftover: {leftover}")
 
 
-def find_emoji_test() -> Path | None:
-    candidates = [
-        EMOJI_DIR / "emoji-test.txt",
-        Path(
-            r"C:\Users\SonnyCalcr\.cursor\projects\c-Users-SonnyCalcr-EDisk-CppCodes-IMECodes"
-            r"\agent-tools\ada26963-9205-4561-bfd6-d653d17660ca.txt"
-        ),
-    ]
+def find_emoji_test(override: Path | None = None) -> Path | None:
+    """Locate Unicode's emoji-test.txt, used to regenerate emoji_catalog.txt.
+
+    The file is not committed; download it from unicode.org when the catalog needs refreshing.
+    Without it the build reads the committed emoji_catalog.txt instead, which is the normal path.
+    """
+    candidates = [override, EMOJI_DIR / "emoji-test.txt"]
     for path in candidates:
-        if path.is_file():
+        if path is not None and path.is_file():
             return path
     return None
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--emoji-test",
+        type=Path,
+        default=None,
+        help="path to Unicode's emoji-test.txt; regenerates emoji_catalog.txt when given",
+    )
+    args = parser.parse_args()
+
     catalog_path = EMOJI_DIR / "emoji_catalog.txt"
-    emoji_test = find_emoji_test()
+    emoji_test = find_emoji_test(args.emoji_test)
     if emoji_test:
         catalog = load_catalog(emoji_test)
         write_catalog(catalog, catalog_path)
