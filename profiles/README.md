@@ -33,3 +33,5 @@ Existing releases without a manifest remain usable only through an explicitly
 locked legacy input; new releases are built and verified through this API.
 
 表名与格式版本来自固定 Engine `contracts/dictionary/`。建表、插入和索引通过根目录 `dictionary_format.py` 使用同一公共 API。`build_profile.compact_dictionary(source, target, minimum_weight)` 是为旧平台脚本保留的 Python 兼容入口，命令行产品构建仍应优先使用 `build_profile.py`。产品清单记录实际格式契约 commit。
+
+所有 SQLite 出货文件在计算摘要前 checkpoint 并切换为 DELETE journal 模式，避免只读消费者依赖未分发的 WAL/SHM。CI 使用固定 Engine 对实际桌面/移动产品执行查询、七/八/九音节写入和回放，并验证英文/快捷短语/表情查询。

@@ -58,6 +58,16 @@ jobs:
           python build_profile.py --profile mobile --source out/desktop/msime.db
           python build_profile.py --profile mobile --verify
 
+      - name: Build the pinned Engine consumer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libboost-dev libfmt-dev libspdlog-dev libsqlite3-dev
+          cmake -S tests/consumer -B out/consumer-build -DCMAKE_BUILD_TYPE=Release
+          cmake --build out/consumer-build --parallel 4
+      - name: Query, create phrases and replay against both produced profiles
+        run: |
+          out/consumer-build/dictionary_consumer "$PWD/out/desktop" desktop
+          out/consumer-build/dictionary_consumer "$PWD/out/mobile" mobile
       - name: Summarize
         run: |
           {

@@ -29,6 +29,15 @@ def digest(path: Path) -> str:
     return value.hexdigest()
 
 
+def freeze_database(path: Path) -> None:
+    """Ship a standalone database, never a WAL header that needs unwritten sidecars."""
+    with sqlite3.connect(path) as database:
+        database.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        mode = database.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
+        if mode.lower() != 'delete':
+            raise ValueError(f'{path.name}: cannot finalize a standalone database')
+
+
 def provenance() -> dict:
     commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     dirty = bool(subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain'], text=True).strip())
@@ -40,6 +49,7 @@ def write_manifest(output: Path, profile: str, names: list[str], source_database
         'manifest_version': 1, 'profile': profile, 'format_version': FORMAT_VERSION,
         'engine_compatibility': {'dictionary_format': FORMAT_VERSION, 'japanese_model_magic': 'MSJPDT1' if profile == 'desktop' else None},
         'source': provenance(),
+        'sqlite_journal_mode': 'delete',
         'format_contract_commit': subprocess.check_output(['git', '-C', str(ROOT / 'vendor/MetasequoiaImeEngine'), 'rev-parse', 'HEAD'], text=True).strip(),
         'custom_dictionary_commit': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD:MetasequoiaImeCustomDict'], text=True).strip() if profile == 'desktop' else None,
         'references': {name: {'repository': repo, 'commit': revision}
@@ -110,6 +120,11 @@ def main() -> None:
             names = list(build_all.SHIPPING_ARTIFACTS)
             for name in names:
                 shutil.copyfile(ROOT / 'out' / name, incoming / name)
+        for name in names:
+            if name.endswith('.db'):
+                freeze_database(incoming / name)
+        if args.profile == 'mobile':
+            (incoming / 'msime.db.sha256').write_text(digest(incoming / 'msime.db') + '\n', encoding='ascii')
         write_manifest(incoming, args.profile, names, source_hash, args.minimum_weight)
         verify(incoming, args.profile)
         output.mkdir(parents=True, exist_ok=True)
